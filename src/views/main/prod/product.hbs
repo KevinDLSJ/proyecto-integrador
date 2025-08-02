@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Administrar</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      display: flex;
+      height: 100vh;
+    }
+
+    .sidebar {
+      background-color: #a6c8ff;
+      width: 250px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .logo {
+      padding: 10px;
+      text-align: center;
+    }
+
+    .menu {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .menu button {
+      padding: 15px;
+      font-size: 18px;
+      border: none;
+      cursor: pointer;
+      text-align: left;
+    }
+
+    .menu .dark {
+      background-color: #004d7a;
+      color: white;
+      width: 100%;
+    }
+
+    .menu .light {
+      background-color: #cce0ff;
+      color: black;
+      width: 100%;
+    }
+
+    .exit {
+      background-color: #ffbb00;
+      padding: 15px;
+      font-weight: bold;
+      text-align: center;
+      cursor: pointer;
+      border: none;
+      font-size: 18px;
+      width: 100%;
+    }
+
+    .main {
+      flex-grow: 1;
+      background-color: white;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+
+    .search-bar {
+      display: flex;
+      align-items: center;
+      padding: 10px;
+    }
+
+    .search-bar input {
+      margin-left: 10px;
+      width: 100%;
+      padding: 10px;
+      font-size: 16px;
+      border-radius: 20px;
+      border: 1px solid #ccc;
+    }
+
+    .content {
+      padding: 20px;
+      overflow-y: auto;
+    }
+
+    .total {
+      position: absolute;
+      bottom: 0;
+      right: 0;
+      background-color: #e6f0ff;
+      padding: 20px;
+      font-size: 20px;
+    }
+
+    .total span {
+      font-weight: bold;
+    }
+
+    .producto {
+      border-bottom: 1px solid #ccc;
+      padding: 10px;
+    }
+    .salir {
+      width: 100%;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="sidebar">
+    <div class="logo">
+      <img src="logo.png" alt="Logo" width="50" />
+    </div>
+    <div class="menu">
+      <a href="/admin">
+      <button class="dark">REGRESAR</button>
+      </a>
+      <a href="/product_new">
+        <button class="light">PRODUCTOS NUEVO</button>
+      </a>
+      <a href="/categorias">
+        <button class="dark">NUEVA CATEGORIA</button>
+      </a>
+
+    </div>
+
+    <a href="/">
+    <button class="exit">SALIR</button>
+    </a>
+   
+
+  </div>
+
+  <div class="main">
+
+    <div class="search-bar">
+      🔍
+      <input type="text" id="buscador" placeholder="Buscar producto..." />
+    </div>
+
+
+    <div id="resultado-busqueda" class="content">
+      {{#each productos}}
+      <div class="producto">
+        <h2>{{nombre_p}}</h2>
+        <p>{{descripcion}}</p>
+        <p>Precio: ${{precio}}</p>
+        <p>Stock: {{stock_actual}} (mínimo: {{stock_minimo}})</p>
+        <p>Categoría: {{nombre}}</p>
+        <p>Creado: {{fecha_creacion}}</p>
+        <p>Actualizado: {{fecha_actualizacion}}</p>
+
+        <a href="/product_edit?id={{producto_id}}">
+          <button class="edit">Editar</button>
+        </a>
+
+        <form action="/product_delete" method="POST"
+          onsubmit="return confirm('¿Seguro que deseas eliminar este producto?')">
+          <input type="hidden" name="id" value="{{producto_id}}">
+          <button type="submit" class="delete">Eliminar</button>
+        </form>
+      </div>
+      {{/each}}
+    </div>
+  </div>
+
+ <script>
+  const input = document.getElementById('buscador');
+  const resultadoDiv = document.getElementById('resultado-busqueda');
+
+  input.addEventListener('input', async () => {
+    const texto = input.value.trim();
+
+    if (texto.length === 0) {
+      location.reload();
+      return;
+    }
+
+    try {
+      const res = await fetch(`/product_search?texto=${encodeURIComponent(texto)}`);
+      const datos = await res.json();
+
+      if (datos.length === 0) {
+        resultadoDiv.innerHTML = '<p>No se encontraron productos.</p>';
+      } else {
+        resultadoDiv.innerHTML = datos.map(prod => `
+          <div class="producto">
+            <h2>${prod.nombre_p}</h2>
+            <p>${prod.descripcion || ''}</p>
+            <p>Precio: $${prod.precio}</p>
+            <p>Stock: ${prod.stock_actual} (mínimo: ${prod.stock_minimo})</p>
+            <p>Categoría: ${prod.nombre || 'Sin categoría'}</p>
+            <p>Creado: ${prod.fecha_creacion}</p>
+            <p>Actualizado: ${prod.fecha_actualizacion || 'Nunca'}</p>
+
+            <a href="/product_edit?id=${prod.producto_id}">
+              <button class="edit">Editar</button>
+            </a>
+
+            <form action="/product_delete" method="POST" 
+              onsubmit="return confirm('¿Seguro que deseas eliminar este producto?')">
+              <input type="hidden" name="id" value="${prod.producto_id}">
+              <button type="submit" class="delete">Eliminar</button>
+            </form>
+          </div>
+        `).join('');
+      }
+    } catch (error) {
+      resultadoDiv.innerHTML = '<p>Error al buscar productos.</p>';
+    }
+  });
+</script>
+</body>
+
+</html>

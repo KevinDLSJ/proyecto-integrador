@@ -1,0 +1,5 @@
+Punto de Venta para una tienda de abarrotes
+
+Node.js, Express y JavaScript
+
+Kevin Raziel De Los Santos Jaramillo

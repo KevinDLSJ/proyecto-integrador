@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Formulario</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      display: flex;
+      height: 100vh;
+    }
+
+    .sidebar {
+      background-color: #a6c8ff;
+      width: 250px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .logo {
+      padding: 10px;
+      text-align: center;
+    }
+
+    .menu {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .menu button {
+      padding: 15px;
+      font-size: 18px;
+      border: none;
+      cursor: pointer;
+      text-align: left;
+      width: 100%;
+      box-sizing: border-box;
+    }
+
+    .menu .dark {
+      background-color: #004d7a;
+      color: white;
+    }
+
+    .menu .light {
+      background-color: #cce0ff;
+      color: black;
+    }
+
+    .exit {
+      background-color: #ffbb00;
+      padding: 15px;
+      font-weight: bold;
+      text-align: center;
+      cursor: pointer;
+      border: none;
+      font-size: 18px;
+    }
+
+    .main {
+      flex-grow: 1;
+      background-color: #f5f8ff;
+      padding: 40px;
+      overflow-y: auto;
+
+    }
+
+    .formulario {
+      background-color: white;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      max-width: 800px;
+      margin: auto;
+    }
+
+    .formulario h2 {
+      margin-bottom: 20px;
+      color: #004d7a;
+    }
+
+    .formulario label {
+      display: block;
+      margin-top: 15px;
+      font-weight: bold;
+    }
+
+    .formulario input,
+    .formulario textarea {
+      width: 100%;
+      padding: 10px;
+      margin-top: 5px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 16px;
+      box-sizing: border-box;
+    }
+
+    .formulario button {
+      margin-top: 25px;
+      padding: 12px 20px;
+      background-color: #004d7a;
+      color: white;
+      font-size: 16px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="sidebar">
+    <div class="logo">
+      <img src="/logo.png" alt="Logo" width="50" />
+    </div>
+    <div class="menu">
+      <a href="/">
+        <button class="dark">INICIO</button>
+      </a>
+      <button class="light">PRODUCTOS</button>
+      <button class="dark">ADMINISTRAR</button>
+      <a href="/admin">
+        <button class="light">REGRESAR</button>
+      </a>
+    </div>
+    <button class="exit">SALIR</button>
+  </div>
+
+  <div class="main">
+    <div class="formulario">
+      <h2>Agregar Proveedor</h2>
+      <form action="" method="POST">
+        <label for="id">ID Proveedor</label>
+        <input type="text" id="proveedor_id" name="proveedor_id" required />
+
+        <label for="nombre">Nombre</label>
+        <input type="text" id="nombre" name="nombre" required />
+
+        <label for="contacto">Contacto</label>
+        <input type="text" id="contacto" name="contacto" required />
+
+        <label for="telefono">Teléfono</label>
+        <input type="text" id="telefono" name="telefono" maxlength="10" required />
+
+        <label for="email">Correo electrónico</label>
+        <input type="email" id="email" name="email" onkeyup="validar_email" required />
+
+        <label for="date">Fecha de Registro</label>
+        <input type="date" id="fecha_registro" name="fecha_registro" required />
+
+        <label for="direccion">Dirección</label>
+        <textarea id="direccion" name="direccion" rows="3"></textarea>
+
+        <button type="submit">Guardar</button>
+      </form>
+    </div>
+  </div>
+</body>
+
+</html>

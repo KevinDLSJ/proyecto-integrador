@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Formulario</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            display: flex;
+            height: 100vh;
+        }
+
+        .sidebar {
+            background-color: #a6c8ff;
+            width: 250px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .logo {
+            padding: 10px;
+            text-align: center;
+        }
+
+        .menu {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .menu button {
+            padding: 15px;
+            font-size: 18px;
+            border: none;
+            cursor: pointer;
+            text-align: left;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .menu .dark {
+            background-color: #004d7a;
+            color: white;
+        }
+
+        .menu .light {
+            background-color: #cce0ff;
+            color: black;
+        }
+
+        .exit {
+            background-color: #ffbb00;
+            padding: 15px;
+            font-weight: bold;
+            text-align: center;
+            cursor: pointer;
+            border: none;
+            font-size: 18px;
+        }
+
+        .main {
+            flex-grow: 1;
+            background-color: #f5f8ff;
+            padding: 40px;
+            overflow-y: auto;
+
+        }
+
+        .formulario {
+            background-color: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            max-width: 800px;
+            margin: auto;
+        }
+
+        .formulario h2 {
+            margin-bottom: 20px;
+            color: #004d7a;
+        }
+
+        .formulario label {
+            display: block;
+            margin-top: 15px;
+            font-weight: bold;
+        }
+
+        .formulario input,
+        .formulario textarea {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+
+        .formulario button {
+            margin-top: 25px;
+            padding: 12px 20px;
+            background-color: #004d7a;
+            color: white;
+            font-size: 16px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="sidebar">
+        <div class="logo">
+            <img src="/logo.png" alt="Logo" width="50" />
+        </div>
+        <div class="menu">
+            <a href="/">
+                <button class="dark">INICIO</button>
+            </a>
+            <button class="light">PRODUCTOS</button>
+            <button class="dark">ADMINISTRAR</button>
+            <a href="/admin">
+                <button class="light">REGRESAR</button>
+            </a>
+        </div>
+        <button class="exit">SALIR</button>
+    </div>
+
+    <div class="main">
+        <div class="formulario">
+            <h1>Editar Producto</h1>
+
+            <form action="/product_edit" method="POST" class="form-producto">
+                <!-- ID oculto -->
+                <input type="hidden" name="id" value="{{producto.producto_id}}">
+
+                <label>Nombre:</label>
+                <input type="text" name="nombre_p" value="{{producto.nombre_p}}" required>
+
+                <label>Descripción:</label>
+                <textarea name="descripcion">{{producto.descripcion}}</textarea>
+
+                <label>Precio:</label>
+                <input type="number" name="precio" step="0.01" value="{{producto.precio}}" required>
+
+                <label>Stock Actual:</label>
+                <input type="number" name="stock_actual" value="{{producto.stock_actual}}" required>
+
+                <label>Stock Mínimo:</label>
+                <input type="number" name="stock_minimo" value="{{producto.stock_minimo}}" required>
+
+                <label>Categoría:</label>
+                <select name="categoria_id" required>
+                    {{#each categorias}}
+                    <option value="{{categoria_id}}" {{#if selected}}selected{{/if}}>
+                        {{nombre}}
+                    </option>
+                    {{/each}}
+                </select>
+
+
+                <button type="submit">Actualizar Producto</button>
+                <a href="/product"><button type="button">Cancelar</button></a>
+            </form>
+        </div>
+    </div>
+</body>
+
+</html>
