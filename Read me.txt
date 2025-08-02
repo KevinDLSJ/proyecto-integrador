@@ -2,4 +2,7 @@ Punto de Venta para una tienda de abarrotes
 
 Node.js, Express y JavaScript
 
-Kevin Raziel De Los Santos Jaramillo
+Kevin Raziel De Los Santos Jaramillo - 241022
+Ángel Gabriel Gallegos Carcía - 240327
+Bruno Eliab Lozoya Perez - 240499
+Edwin Enoc Vargas Cruz - 240513
