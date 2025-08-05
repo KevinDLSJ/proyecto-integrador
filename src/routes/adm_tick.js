@@ -3,10 +3,11 @@ const principalController = require('../controllers/principalController');
 const adminController = require('../controllers/adminController');
 const productController = require('../controllers/productController');
 const categoriaController = require('../controllers/categoriaController');
+const ventaController = require('../controllers/ventaController');
 
 const router = express.Router();
 
-router.get('/ticket_main', principalController.ticket);
+//router.get('/ticket_main', principalController.ticket);
 
 router.get('/admin', adminController.admin);
 router.get('/buscar', adminController.buscarReal);
@@ -32,6 +33,11 @@ router.post('/categoria_new', categoriaController.guardar);
 router.get('/categoria_edit', categoriaController.editar);
 router.post('/categoria_edit', categoriaController.actualizar);
 router.post('/categoria_delete', categoriaController.eliminar);
+
+// Ticket de venta
+router.get('/ticket_main', ventaController.ticket);
+router.post('/guardar_venta', ventaController.guardarVenta);
+
 
 
 

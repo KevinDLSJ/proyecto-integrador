@@ -1,119 +1,153 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Punto de Venta</title>
-  <style>
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      display: flex;
-      height: 100vh;
-    }
-    .sidebar {
-      background-color: #a6c8ff;
-      width: 250px;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-    }
-    .logo {
-      padding: 10px;
-      text-align: center;
-    }
-    .menu {
-      display: flex;
-      flex-direction: column;
-    }
-    .menu button {
-      padding: 15px;
-      font-size: 18px;
-      border: none;
-      cursor: pointer;
-      text-align: left;
-    }
-    .menu .dark {
-      background-color: #004d7a;
-      color: white;
-    }
-    .menu .light {
-      background-color: #cce0ff;
-      color: black;
-    }
-    .exit {
-      background-color: #ffbb00;
-      padding: 15px;
-      font-weight: bold;
-      text-align: center;
-      cursor: pointer;
-      border: none;
-      font-size: 18px;
-    }
-    .main {
-      flex-grow: 1;
-      background-color: white;
-      display: flex;
-      flex-direction: column;
-      position: relative;
-    }
-    .search-bar {
-      display: flex;
-      align-items: center;
-      padding: 10px;
-    }
-    .search-bar input {
-      margin-left: 10px;
-      width: 100%;
-      padding: 10px;
-      font-size: 16px;
-      border-radius: 20px;
-      border: 1px solid #ccc;
-    }
-    .total {
-      position: absolute;
-      bottom: 0;
-      right: 0;
-      background-color: #e6f0ff;
-      padding: 20px;
-      font-size: 20px;
-    }
-    .total span {
-      font-weight: bold;
-    }
-  </style>
-</head>
-<body>
-  <div class="sidebar">
-    <div class="logo">
-      <img src="logo.png" alt="Logo" width="50"/>
-    </div>
-    <div class="menu">
-      <a href="/">
-        <button class="dark">INICIO</button>
-      </a>
-      <a href="/product">
-      <button class="light">PRODUCTOS</button>
-      </a>
-      <a href="/admin"> 
-      <button class="dark">ADMINISTRAR</button>
-      </a>
-      <button class="light">+TICKET</button>
-    </div>
-    <button class="exit">SALIR</button>
-  </div>
+<div class="main">
+  <h1>Nueva Venta</h1>
 
-  <div class="main">
-    <div class="search-bar">
-      🔍 <input type="text" placeholder="BUSCAR" />
-    </div>
-    <div class="content">
-      <!-- Aquí se mostrará el contenido -->
-    </div>
-    <div class="total">
-      <div><strong>TOTAL</strong></div>
-      <span>$00.00</span>
-    </div>
-  </div>
-</body>
-</html>
+  <form id="ventaForm" action="/guardar_venta" method="POST">
+    <input type="hidden" name="productos" id="productosInput">
+
+    <table id="detalle-venta">
+      <thead>
+        <tr>
+          <th>Producto</th>
+          <th>Stock</th>
+          <th>Precio Unitario</th>
+          <th>Cantidad</th>
+          <th>Subtotal</th>
+          <th>Acción</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- Filas dinámicas -->
+      </tbody>
+    </table>
+
+    <button type="button" onclick="agregarFila()">Agregar producto</button>
+
+    <h3>Total: $<span id="total">0.00</span></h3>
+
+    <button type="submit">Confirmar Venta</button>
+  </form>
+</div>
+
+<!-- ✅ Script al final para que las funciones existan antes del onclick -->
+<script>
+  // ---------------------------
+  // 1️⃣ Cargar productos en JS
+  // ---------------------------
+  let productos = [];
+  try {
+    productos = {{{productosJSON}}} || [];
+  } catch (e) {
+    console.error("Error al parsear productosJSON:", e);
+    productos = [];
+  }
+
+  // ---------------------------
+  // 2️⃣ Variables globales
+  // ---------------------------
+  const tbody = document.querySelector('#detalle-venta tbody');
+  const totalSpan = document.getElementById('total');
+  const productosInput = document.getElementById('productosInput');
+
+  // ---------------------------
+  // 3️⃣ Funciones
+  // ---------------------------
+
+  // Escapar texto para evitar errores
+  function escapeHTML(str) {
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;');
+  }
+
+  // Agregar una fila de producto
+  function agregarFila() {
+    if (!Array.isArray(productos) || productos.length === 0) {
+      alert("No hay productos disponibles para vender.");
+      return;
+    }
+
+    const row = document.createElement('tr');
+
+    row.innerHTML = `
+      <td>
+        <select onchange="actualizarPrecio(this)">
+          <option value="">Seleccione</option>
+          ${productos.map(p => `
+            <option value="${escapeHTML(p.producto_id)}" 
+                    data-precio="${escapeHTML(p.precio)}" 
+                    data-stock="${escapeHTML(p.stock_actual)}">
+              ${escapeHTML(p.nombre_p)}
+            </option>
+          `).join('')}
+        </select>
+      </td>
+      <td class="stock">0</td>
+      <td class="precio">0.00</td>
+      <td><input type="number" min="1" value="1" oninput="calcularFila(this)"></td>
+      <td class="subtotal">0.00</td>
+      <td><button type="button" onclick="eliminarFila(this)">❌</button></td>
+    `;
+
+    tbody.appendChild(row);
+  }
+
+  // Actualizar precio y stock cuando se selecciona un producto
+  function actualizarPrecio(select) {
+    const row = select.closest('tr');
+    const option = select.options[select.selectedIndex];
+    const precio = parseFloat(option.dataset.precio || 0);
+    const stock = option.dataset.stock || 0;
+
+    row.querySelector('.precio').innerText = precio.toFixed(2);
+    row.querySelector('.stock').innerText = stock;
+
+    calcularFila(row.querySelector('input[type=number]'));
+  }
+
+  // Calcular subtotal por fila
+  function calcularFila(input) {
+    const row = input.closest('tr');
+    const precio = parseFloat(row.querySelector('.precio').innerText);
+    const cantidad = parseInt(input.value) || 0;
+    const subtotal = precio * cantidad;
+
+    row.querySelector('.subtotal').innerText = subtotal.toFixed(2);
+    calcularTotal();
+  }
+
+  // Eliminar fila
+  function eliminarFila(btn) {
+    btn.closest('tr').remove();
+    calcularTotal();
+  }
+
+  // Calcular total y preparar datos para el backend
+  function calcularTotal() {
+    let total = 0;
+    const detalles = [];
+
+    document.querySelectorAll('#detalle-venta tbody tr').forEach(row => {
+      const select = row.querySelector('select');
+      const id = select.value;
+      const precio = parseFloat(row.querySelector('.precio').innerText);
+      const cantidad = parseInt(row.querySelector('input[type=number]').value) || 0;
+      const subtotal = precio * cantidad;
+
+      if (id) {
+        detalles.push({ id, cantidad, precio });
+        total += subtotal;
+      }
+    });
+
+    totalSpan.innerText = total.toFixed(2);
+    productosInput.value = JSON.stringify(detalles);
+  }
+
+  // Actualizar datos antes de enviar el formulario
+  document.getElementById('ventaForm').addEventListener('submit', function () {
+    calcularTotal();
+  });
+</script>
