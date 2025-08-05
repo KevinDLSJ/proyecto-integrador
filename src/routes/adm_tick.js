@@ -34,7 +34,7 @@ router.get('/categoria_edit', categoriaController.editar);
 router.post('/categoria_edit', categoriaController.actualizar);
 router.post('/categoria_delete', categoriaController.eliminar);
 
-// Ticket de venta
+
 router.get('/ticket_main', ventaController.ticket);
 router.post('/guardar_venta', ventaController.guardarVenta);
 
