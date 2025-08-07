@@ -1,0 +1,177 @@
+<div class="sidebar">
+  <div class="logo">
+    <a href="/"><img src="/images/Logo.png" alt="Logo" width="50" /></a>
+  </div>
+
+  <div class="menu">
+    <a href="/">
+      <button class="menu-btn dark">INICIO</button>
+    </a>
+
+    <!-- Grupo Productos -->
+    <div class="menu-group">
+      <button class="menu-btn light toggle-submenu" onclick="toggleMenu('productos')">
+        PRODUCTOS <span class="arrow">▼</span>
+      </button>
+      <div class="submenu" id="productos-menu">
+        <a href="/product" class="submenu-link">Ver Productos</a>
+        <a href="/product_new" class="submenu-link">Nuevo Producto</a>
+      </div>
+    </div>
+
+    <!-- Grupo Proveedores -->
+    <div class="menu-group">
+      <button class="menu-btn dark toggle-submenu" onclick="toggleMenu('proveedores')">
+        PROVEEDORES <span class="arrow">▼</span>
+      </button>
+      <div class="submenu" id="proveedores-menu">
+        <a href="/admin" class="submenu-link">Ver Proveedores</a>
+        <a href="/prov_new" class="submenu-link">Nuevo Proveedor</a>
+      </div>
+    </div>
+
+    <!-- Grupo Categorías -->
+    <div class="menu-group">
+      <button class="menu-btn light toggle-submenu" onclick="toggleMenu('categorias')">
+        CATEGORÍAS <span class="arrow">▼</span>
+      </button>
+      <div class="submenu" id="categorias-menu">
+        <a href="/categorias" class="submenu-link">Ver Categorías</a>
+        <a href="/categoria_new" class="submenu-link">Nueva Categoría</a>
+      </div>
+    </div>
+  </div>
+
+  <button class="exit-btn" onclick="window.location.href='/'">SALIR</button>
+</div>
+
+<style>
+  body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+  }
+.sidebar {
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 250px;
+  height: 100vh;
+  background-color: #a6c7fc;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  border-right: 2px solid #333;
+  z-index: 1000; 
+  flex-shrink: 0;
+
+}
+
+.logo {
+  padding: 10px;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+}
+
+.menu {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.menu-btn {
+  width: 100%;
+  padding: 15px;
+  font-size: 16px;
+  font-weight: bold;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  padding-left: 20px;
+}
+
+.dark {
+  background-color: #2b6aa4; /* antes: #004a87 */
+  color: black;
+}
+
+.light {
+  background-color: #cce0ff;
+  color: black;
+}
+
+.submenu {
+  display: none;
+  flex-direction: column;
+  background-color: #3e668e; /* antes: #003366 */
+}
+
+.submenu-link {
+  color: white;
+  padding: 12px 20px;
+  text-decoration: none;
+  transition: background 0.3s;
+}
+
+.submenu-link:hover {
+  background-color: #3b5b79; /* antes: #002244 */
+}
+
+.menu-group.active .submenu {
+  display: flex;
+}
+
+.arrow {
+  float: right;
+  margin-right: 20px;
+  transition: transform 0.3s;
+}
+
+.menu-group.active .arrow {
+  transform: rotate(180deg);
+}
+
+.exit-btn {
+  width: 100%;
+  background-color: #ffb900;
+  padding: 15px;
+  font-size: 16px;
+  font-weight: bold;
+  border: none;
+  cursor: pointer;
+  color: black;
+}
+
+.exit-btn:hover {
+  background-color: #e0a700;
+}
+
+</style>
+
+<script>
+  function toggleMenu(menuId) {
+    const menu = document.getElementById(`${menuId}-menu`);
+    const group = menu.parentElement;
+
+    document.querySelectorAll('.menu-group').forEach(otherGroup => {
+      if (otherGroup !== group) {
+        otherGroup.classList.remove('active');
+      }
+    });
+
+    group.classList.toggle('active');
+    const isActive = group.classList.contains('active');
+    localStorage.setItem(`menu-${menuId}-state`, isActive);
+  }
+
+document.addEventListener('DOMContentLoaded', function () {
+  ['productos', 'proveedores', 'categorias'].forEach(menuId => {
+    const savedState = localStorage.getItem(`menu-${menuId}-state`);
+    const group = document.querySelector(`#${menuId}-menu`)?.closest('.menu-group');
+
+    if (savedState === 'true' && group) {
+      group.classList.add('active');
+    }
+  });
+});
+</script>

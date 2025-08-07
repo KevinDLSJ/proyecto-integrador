@@ -25,7 +25,7 @@ function nuevo(req, res) {
 
 
 function crear(req, res) {
-  const { nombre_p, descripcion, precio, stock_actual, stock_minimo, categoria_id } = req.body;
+  const { nombre_p, descripcion, precio, stock_actual, stock_minimo, stock_maximo, categoria_id } = req.body;
 
   const nuevoProducto = {
     producto_id: uuidv4(),
@@ -34,6 +34,7 @@ function crear(req, res) {
     precio,
     stock_actual,
     stock_minimo,
+    stock_maximo,
     categoria_id,
     fecha_creacion: new Date(),
     fecha_actualizacion: null
@@ -73,46 +74,126 @@ function editar(req, res) {
 function actualizar(req, res) {
   const { id, nombre_p, descripcion, precio, stock_actual, stock_minimo, categoria_id } = req.body;
 
+  // Validaciones
+  if (!id || !nombre_p || !categoria_id) {
+    return res.status(400).json({ 
+      success: false,
+      error: 'ID, nombre y categoría son obligatorios' 
+    });
+  }
+
+  // Convertir valores numéricos
+  const numericFields = {
+    precio: parseFloat(precio),
+    stock_actual: parseInt(stock_actual),
+    stock_minimo: parseInt(stock_minimo)
+  };
+
+  // Verificar conversiones
+  for (const [field, value] of Object.entries(numericFields)) {
+    if (isNaN(value)) {
+      return res.status(400).json({ 
+        success: false,
+        error: `${field} debe ser un número válido` 
+      });
+    }
+  }
+
   req.getConnection((err, conn) => {
-    if (err) return res.status(500).send('Error de conexión');
+    if (err) return res.status(500).json({ error: 'Error de conexión' });
+
+    const productoActualizado = {
+      nombre_p,
+      descripcion: descripcion || null, // Permitir null si es vacío
+      precio: numericFields.precio,
+      stock_actual: numericFields.stock_actual,
+      stock_minimo: numericFields.stock_minimo,
+      categoria_id,
+      fecha_actualizacion: new Date()
+    };
 
     conn.query(
-      `UPDATE producto 
-       SET nombre_p=?, descripcion=?, precio=?, stock_actual=?, stock_minimo=?, categoria_id=?, fecha_actualizacion=NOW() 
-       WHERE producto_id=?`,
-      [nombre_p, descripcion, precio, stock_actual, stock_minimo, categoria_id, id],
-      (err) => {
-        if (err) return res.status(500).send('Error al actualizar producto');
-        res.redirect('/product');
+      `UPDATE producto SET 
+        nombre_p = ?, 
+        descripcion = ?, 
+        precio = ?, 
+        stock_actual = ?, 
+        stock_minimo = ?, 
+        categoria_id = ?, 
+        fecha_actualizacion = NOW() 
+      WHERE producto_id = ?`,
+      [
+        productoActualizado.nombre_p,
+        productoActualizado.descripcion,
+        productoActualizado.precio,
+        productoActualizado.stock_actual,
+        productoActualizado.stock_minimo,
+        productoActualizado.categoria_id,
+        id
+      ],
+      (err, result) => {
+        if (err) {
+          console.error('Error SQL:', err);
+          return res.status(500).json({ 
+            success: false,
+            error: 'Error al actualizar producto en la base de datos' 
+          });
+        }
+
+        if (result.affectedRows === 0) {
+          return res.status(404).json({ 
+            success: false,
+            error: 'Producto no encontrado' 
+          });
+        }
+
+        res.json({ 
+          success: true,
+          message: 'Producto actualizado correctamente',
+          producto: { id, ...productoActualizado }
+        });
       }
     );
   });
 }
 
 function eliminar(req, res) {
-  const id = req.body.id;
+    const { id } = req.body;
+    if (!id) {
+        return res.status(400).json({ success: false, error: 'ID de producto es obligatorio' });
+    }
 
-  req.getConnection((err, conn) => {
-    if (err) return res.status(500).send('Error de conexión');
+    req.getConnection((err, conn) => {
+        if (err) {
+            console.error('Error de conexión a la base de datos:', err);
+            return res.status(500).json({ success: false, error: 'Error de conexión' });
+        }
 
-    conn.query('DELETE FROM producto WHERE producto_id = ?', [id], (err) => {
-      if (err) return res.status(500).send('Error al eliminar producto');
-      res.redirect('/product');
+        conn.query('DELETE FROM producto WHERE producto_id = ?', [id], (err, result) => {
+            if (err) {
+                console.error('Error al eliminar producto:', err);
+                return res.status(500).json({ success: false, error: 'Error al eliminar el producto' });
+            }
+            if (result.affectedRows === 0) {
+                return res.status(404).json({ success: false, error: 'Producto no encontrado' });
+            }
+            res.json({ success: true, message: 'Producto eliminado correctamente' });
+        });
     });
-  });
 }
-
 function buscar(req, res) {
   const texto = req.query.texto || '';
   req.getConnection((err, conn) => {
     if (err) return res.status(500).json({ error: 'Error de conexión' });
 
     conn.query(
-      `SELECT p.*, c.nombre 
+     `SELECT p.producto_id, p.nombre_p, p.descripcion, p.precio, 
+              p.stock_actual, p.fecha_actualizacion, c.nombre as categoria
        FROM producto p 
        LEFT JOIN categoria c ON p.categoria_id = c.categoria_id
-       WHERE p.nombre_P LIKE ?`,
-      [`%${texto}%`],
+       WHERE p.nombre_p LIKE ? OR p.descripcion LIKE ? OR c.nombre LIKE ?
+       ORDER BY p.nombre_p`,
+      [`%${texto}%`, `%${texto}%`, `%${texto}%`],
       (err, resultados) => {
         if (err) return res.status(500).json({ error: 'Error al buscar' });
         res.json(resultados);

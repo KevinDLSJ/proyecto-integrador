@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Formulario</title>
+  <title>Agregar Producto</title>
   <style>
     body {
       margin: 0;
@@ -66,7 +66,6 @@
       background-color: #f5f8ff;
       padding: 40px;
       overflow-y: auto;
-
     }
 
     .formulario {
@@ -90,7 +89,8 @@
     }
 
     .formulario input,
-    .formulario textarea {
+    .formulario textarea,
+    .formulario select {
       width: 100%;
       padding: 10px;
       margin-top: 5px;
@@ -109,59 +109,129 @@
       border: none;
       border-radius: 8px;
       cursor: pointer;
+      transition: background-color 0.3s;
+    }
+
+    .formulario button:hover {
+      background-color: #003366;
+    }
+
+    .error-message {
+      color: #d32f2f;
+      font-size: 14px;
+      margin-top: 5px;
+    }
+
+    .stock-fields {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
     }
   </style>
 </head>
 
 <body>
-  <div class="sidebar">
-    <div class="logo">
-      <img src="/logo.png" alt="Logo" width="50" />
-    </div>
-    <div class="menu">
-      <a href="/">
-        <button class="dark">INICIO</button>
-      </a>
-      <a href="/product">
-        <button class="light">REGRESAR</button>
-      </a>
-    </div>
-    <button class="exit">SALIR</button>
-  </div>
+  {{> admin-menu}}
 
   <div class="main">
     <div class="formulario">
-       <h1>Agregar Nuevo Producto</h1>
+      <h2>Agregar Producto</h2>
+      <form id="productForm" action="/product_new" method="POST">
+        <label for="nombre_p">Nombre del Producto</label>
+        <input type="text" id="nombre_p" name="nombre_p" required />
 
-  <form action="/product_new" method="POST" class="form-producto">
-    <label>Nombre:</label>
-    <input type="text" name="nombre_p" required>
+        <label for="descripcion">Descripción</label>
+        <textarea id="descripcion" name="descripcion" rows="3"></textarea>
 
-    <label>Descripción:</label>
-    <textarea name="descripcion"></textarea>
+        <label for="precio">Precio ($)</label>
+        <input type="number" id="precio" name="precio" step="0.01" min="0" required />
 
-    <label>Precio:</label>
-    <input type="number" name="precio" step="0.01" required>
+        <label for="categoria_id">Categoría</label>
+        <select id="categoria_id" name="categoria_id" required>
+          {{#each categorias}}
+            <option value="{{categoria_id}}">{{nombre}}</option>
+          {{/each}}
+        </select>
 
-    <label>Stock Actual:</label>
-    <input type="number" name="stock_actual" required>
+        <div class="stock-fields">
+          <div>
+            <label for="stock_actual">Stock Actual</label>
+            <input type="number" id="stock_actual" name="stock_actual" min="0" required />
+          </div>
+          
+          <div>
+            <label for="stock_maximo">Stock Máximo</label>
+            <input type="number" id="stock_maximo" name="stock_maximo" min="1" required />
+            <div id="stockMaxError" class="error-message" style="display: none;">
+              El stock máximo debe ser mayor que el stock actual
+            </div>
+          </div>
+        </div>
 
-    <label>Stock Mínimo:</label>
-    <input type="number" name="stock_minimo" required>
+        <label for="stock_minimo">Stock Mínimo</label>
+        <input type="number" id="stock_minimo" name="stock_minimo" min="0" required />
 
-    <label>Categoría:</label>
-    <select name="categoria_id" required>
-      <option value="">Selecciona una categoría</option>
-      {{#each categorias}}
-        <option value="{{categoria_id}}">{{nombre}}</option>
-      {{/each}}
-    </select>
-
-    <button type="submit">Guardar Producto</button>
-    <a href="/product"><button type="button">Cancelar</button></a>
-  </form>
+        <button type="submit">Guardar Producto</button>
+      </form>
     </div>
   </div>
+
+  <script>
+    document.getElementById('productForm').addEventListener('submit', function(e) {
+      // Validación de stock
+      const stockActual = parseInt(document.getElementById('stock_actual').value);
+      const stockMaximo = parseInt(document.getElementById('stock_maximo').value);
+      const stockMinimo = parseInt(document.getElementById('stock_minimo').value);
+      
+      // Validar que stock máximo sea mayor que actual
+      if (stockActual > stockMaximo) {
+        e.preventDefault();
+        document.getElementById('stockMaxError').style.display = 'block';
+        document.getElementById('stock_maximo').focus();
+        return;
+      } else {
+        document.getElementById('stockMaxError').style.display = 'none';
+      }
+      
+      // Validar que stock mínimo sea menor que máximo
+      if (stockMinimo >= stockMaximo) {
+        e.preventDefault();
+        alert('El stock mínimo debe ser menor que el stock máximo');
+        document.getElementById('stock_minimo').focus();
+        return;
+      }
+      
+      // Validación adicional de precios
+      const precio = parseFloat(document.getElementById('precio').value);
+      if (isNaN(precio) || precio <= 0) {
+        e.preventDefault();
+        alert('El precio debe ser un número positivo');
+        return;
+      }
+    });
+
+    // Validación en tiempo real del stock máximo
+    document.getElementById('stock_actual').addEventListener('change', function() {
+      const stockActual = parseInt(this.value);
+      const stockMaximo = document.getElementById('stock_maximo');
+      
+      if (stockActual > parseInt(stockMaximo.value)) {
+        document.getElementById('stockMaxError').style.display = 'block';
+      } else {
+        document.getElementById('stockMaxError').style.display = 'none';
+      }
+    });
+
+    document.getElementById('stock_maximo').addEventListener('change', function() {
+      const stockActual = parseInt(document.getElementById('stock_actual').value);
+      
+      if (stockActual > parseInt(this.value)) {
+        document.getElementById('stockMaxError').style.display = 'block';
+      } else {
+        document.getElementById('stockMaxError').style.display = 'none';
+      }
+    });
+  </script>
 </body>
 
-</html>x
+</html>

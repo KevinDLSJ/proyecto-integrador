@@ -114,29 +114,13 @@
 </head>
 
 <body>
-  <div class="sidebar">
-    <div class="logo">
-      <img src="/logo.png" alt="Logo" width="50" />
-    </div>
-    <div class="menu">
-      <a href="/">
-        <button class="dark">INICIO</button>
-      </a>
-      <button class="light">PRODUCTOS</button>
-      <button class="dark">ADMINISTRAR</button>
-      <a href="/admin">
-        <button class="light">REGRESAR</button>
-      </a>
-    </div>
-    <button class="exit">SALIR</button>
-  </div>
+{{> admin-menu}}
+
 
   <div class="main">
     <div class="formulario">
       <h2>Agregar Proveedor</h2>
       <form action="" method="POST">
-        <label for="id">ID Proveedor</label>
-        <input type="text" id="proveedor_id" name="proveedor_id" required />
 
         <label for="nombre">Nombre</label>
         <input type="text" id="nombre" name="nombre" required />
@@ -149,9 +133,6 @@
 
         <label for="email">Correo electrónico</label>
         <input type="email" id="email" name="email" onkeyup="validar_email" required />
-
-        <label for="date">Fecha de Registro</label>
-        <input type="date" id="fecha_registro" name="fecha_registro" required />
 
         <label for="direccion">Dirección</label>
         <textarea id="direccion" name="direccion" rows="3"></textarea>

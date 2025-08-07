@@ -4,86 +4,103 @@
   <meta charset="UTF-8">
   <title>Nueva Venta</title>
   <style>
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      display: flex;
-      height: 100vh;
-    }
+  body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  display: flex;
+  height: 100vh;
+  background-color: #eaf0fb;
+}
 
-    .sidebar {
-      width: 220px;
-      background-color: #d3e0ff;
-      padding: 20px;
-      box-shadow: 2px 0 5px rgba(0,0,0,0.1);
-    }
+.main {
+  flex-grow: 1;
+  padding: 30px;
+  background-color: #f4f8ff;
+  overflow-y: auto;
+}
 
-    .sidebar a {
-      display: block;
-      margin-bottom: 15px;
-      padding: 10px;
-      text-decoration: none;
-      color: #333;
-      font-weight: bold;
-      border-radius: 5px;
-    }
+h1 {
+  margin-top: 0;
+  color: #003366;
+  border-bottom: 2px solid #004a87;
+  padding-bottom: 5px;
+}
 
-    .sidebar a:hover {
-      background-color: #b0c4de;
-    }
+input[type="text"] {
+  padding: 10px;
+  font-size: 14px;
+  width: 300px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
 
-    .sidebar .salir {
-      background-color: #ffd700;
-      color: black;
-    }
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+  background-color: white;
+  box-shadow: 0 0 5px rgba(0,0,0,0.1);
+}
 
-    .main {
-      flex-grow: 1;
-      padding: 30px;
-      background-color: #f9f9f9;
-    }
+th, td {
+  border: 1px solid #d0d0d0;
+  padding: 10px;
+  text-align: center;
+  font-size: 14px;
+}
 
-    h1 {
-      margin-top: 0;
-    }
+th {
+  background-color: #cce0ff;
+  color: #003366;
+}
 
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-bottom: 20px;
-    }
+button {
+  background-color: #004a87;
+  color: white;
+  border: none;
+  padding: 10px 14px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background-color 0.3s;
+}
 
-    th, td {
-      border: 1px solid #ccc;
-      padding: 10px;
-      text-align: center;
-    }
+button:hover {
+  background-color: #00325e;
+}
 
-    th {
-      background-color: #e0e0e0;
-    }
+#total {
+  font-weight: bold;
+  color: #004a87;
+  font-size: 18px;
+}
 
-    button {
-      padding: 8px 12px;
-      margin-top: 10px;
-      cursor: pointer;
-    }
+.resultados {
+  position: absolute;
+  background: white;
+  border: 1px solid #ccc;
+  width: 300px;
+  max-height: 200px;
+  overflow-y: auto;
+  z-index: 10;
+  border-radius: 4px;
+  box-shadow: 0px 2px 5px rgba(0,0,0,0.1);
+}
 
-    #total {
-      font-weight: bold;
-      color: #2c3e50;
-    }
+.resultado-item {
+  padding: 8px 12px;
+  cursor: pointer;
+  border-bottom: 1px solid #eee;
+}
+
+.resultado-item:hover {
+  background-color: #e8f0ff;
+}
   </style>
 </head>
 <body>
+{{> sales-menu}}
 
-  <div class="sidebar">
-    <img src="/images/logo.png" alt="Logo" style="width:100%; margin-bottom: 20px;">
-    <a href="/">INICIO</a>
-    <a href="/productos">PRODUCTOS</a>
-    <a href="/nueva_venta">Nueva Venta</a>
-    <a href="/logout" class="salir">SALIR</a>
-  </div>
 
 <div class="main">
   <h1>Nueva Venta</h1>

@@ -4,62 +4,14 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Administrar</title>
+  <title>Administrar Productos</title>
   <style>
     body {
       margin: 0;
       font-family: Arial, sans-serif;
       display: flex;
       height: 100vh;
-    }
-
-    .sidebar {
-      background-color: #a6c8ff;
-      width: 250px;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-    }
-
-    .logo {
-      padding: 10px;
-      text-align: center;
-    }
-
-    .menu {
-      display: flex;
-      flex-direction: column;
-    }
-
-    .menu button {
-      padding: 15px;
-      font-size: 18px;
-      border: none;
-      cursor: pointer;
-      text-align: left;
-    }
-
-    .menu .dark {
-      background-color: #004d7a;
-      color: white;
-      width: 100%;
-    }
-
-    .menu .light {
-      background-color: #cce0ff;
-      color: black;
-      width: 100%;
-    }
-
-    .exit {
-      background-color: #ffbb00;
-      padding: 15px;
-      font-weight: bold;
-      text-align: center;
-      cursor: pointer;
-      border: none;
-      font-size: 18px;
-      width: 100%;
+      overflow: hidden;
     }
 
     .main {
@@ -68,12 +20,15 @@
       display: flex;
       flex-direction: column;
       position: relative;
+      overflow: hidden;
     }
 
     .search-bar {
       display: flex;
       align-items: center;
-      padding: 10px;
+      padding: 15px;
+      background-color: #f5f5f5;
+      border-bottom: 1px solid #ddd;
     }
 
     .search-bar input {
@@ -86,98 +41,661 @@
     }
 
     .content {
-      padding: 20px;
+      flex: 1;
       overflow-y: auto;
+      padding: 0;
     }
 
-    .total {
-      position: absolute;
-      bottom: 0;
-      right: 0;
-      background-color: #e6f0ff;
-      padding: 20px;
-      font-size: 20px;
-    }
-
-    .total span {
-      font-weight: bold;
-    }
-
-    .producto {
-      border-bottom: 1px solid #ccc;
-      padding: 10px;
-    }
-    .salir {
+    .products-table {
       width: 100%;
+      border-collapse: collapse;
     }
+
+    .products-table th {
+      background-color: #004d7a;
+      color: white;
+      padding: 12px 15px;
+      text-align: left;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    .products-table td {
+      padding: 12px 15px;
+      border-bottom: 1px solid #ddd;
+    }
+
+    .products-table tr:hover {
+      background-color: #f5f5f5;
+    }
+
+    .products-table tr.selected {
+      background-color: #e6f0ff;
+    }
+
+    .products-table tr.edit-mode td {
+      background-color: #fffde7;
+    }
+
+    .products-table tr.edit-mode input {
+      width: 100%;
+      padding: 5px;
+      border: 1px solid #ddd;
+      border-radius: 3px;
+    }
+
+    .stock-indicator {
+      width: 100%;
+      height: 100%;
+      min-height: 40px;
+      border-radius: 4px;
+    }
+
+    .stock-low {
+      background-color: #F44336;
+    }
+
+    .stock-medium {
+      background-color: #FFC107;
+    }
+
+    .stock-high {
+      background-color: #4CAF50;
+    }
+
+    .last-update {
+      font-size: 0.8em;
+      color: #666;
+    }
+
+    .action-buttons {
+      display: flex;
+      justify-content: flex-end;
+      padding: 15px;
+      background-color: #f5f5f5;
+      border-top: 1px solid #ddd;
+      gap: 10px;
+    }
+
+    .action-btn {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 16px;
+      font-weight: bold;
+      transition: all 0.3s;
+    }
+
+    .action-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .add-btn {
+      background-color: #4CAF50;
+      color: white;
+    }
+
+    .add-btn:hover:not(:disabled) {
+      background-color: #3e8e41;
+    }
+
+    .edit-btn {
+      background-color: #2196F3;
+      color: white;
+    }
+
+    .edit-btn:hover:not(:disabled) {
+      background-color: #0b7dda;
+    }
+
+    .edit-btn.edit-mode {
+      background-color: #FF9800;
+    }
+
+    .delete-btn {
+      background-color: #f44336;
+      color: white;
+    }
+
+    .delete-btn:hover:not(:disabled) {
+      background-color: #da190b;
+    }
+
+    .loading {
+      text-align: center;
+      padding: 20px;
+      color: #666;
+    }
+
+    .no-results {
+      text-align: center;
+      padding: 40px;
+      color: #666;
+    }
+     body {
+ body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    display: flex;
+    height: 100vh;
+    background-color: #eaf0fb;
+  }
+
+  .main {
+    flex-grow: 1;
+    padding: 30px;
+    background-color: #f4f8ff;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .search-bar {
+    display: flex;
+    margin-bottom: 20px;
+    gap: 10px;
+    align-items: center;
+  }
+
+  .search-bar input {
+    flex: 1;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 16px;
+  }
+
+  h1 {
+    margin-top: 0;
+    color: #003366;
+    border-bottom: 2px solid #004a87;
+    padding-bottom: 5px;
+  }
+
+  .products-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+    background-color: white;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+  }
+
+  .products-table th,
+  .products-table td {
+    border: 1px solid #d0d0d0;
+    padding: 10px;
+    text-align: center;
+    font-size: 14px;
+  }
+
+  .products-table th {
+    background-color: #cce0ff;
+    color: #003366;
+  }
+
+  .products-table tr:hover {
+    background-color: #e8f0ff;
+  }
+
+  .products-table tr.selected {
+    background-color: #d6e6ff;
+  }
+
+  .products-table tr.edit-mode td {
+    background-color: #fffde7;
+  }
+
+  .products-table tr.edit-mode input {
+    width: 100%;
+    padding: 5px;
+    border: 1px solid #ddd;
+    border-radius: 3px;
+  }
+
+  .action-buttons {
+    display: flex;
+    justify-content: flex-end;
+    padding: 20px 0 0;
+    gap: 10px;
+  }
+
+  .action-btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: bold;
+    transition: all 0.3s;
+  }
+
+  .action-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .add-btn {
+    background-color: #4CAF50;
+    color: white;
+  }
+
+  .add-btn:hover:not(:disabled) {
+    background-color: #3e8e41;
+  }
+
+  .edit-btn {
+    background-color: #2196F3;
+    color: white;
+  }
+
+  .edit-btn.edit-mode {
+    background-color: #FF9800;
+  }
+
+  .edit-btn:hover:not(:disabled) {
+    background-color: #0b7dda;
+  }
+
+  .delete-btn {
+    background-color: #f44336;
+    color: white;
+  }
+
+  .delete-btn:hover:not(:disabled) {
+    background-color: #da190b;
+  }
+
+  .loading {
+    text-align: center;
+    padding: 20px;
+    color: #666;
+  }
+
+  .no-results {
+    text-align: center;
+    padding: 40px;
+    color: #666;
+    font-size: 18px;
+  }
+
+
   </style>
 </head>
 
 <body>
-  <div class="sidebar">
-    <div class="logo">
-      <img src="logo.png" alt="Logo" width="50" />
-    </div>
-    <div class="menu">
-      <a href="/admin">
-      <button class="dark">REGRESAR</button>
-      </a>
-      <a href="/product_new">
-        <button class="light">PRODUCTOS NUEVO</button>
-      </a>
-      <a href="/categorias">
-        <button class="dark">NUEVA CATEGORIA</button>
-      </a>
-
-    </div>
-
-    <a href="/">
-    <button class="exit">SALIR</button>
-    </a>
-   
-
-  </div>
+  {{> admin-menu}}
 
   <div class="main">
-
     <div class="search-bar">
       🔍
       <input type="text" id="buscador" placeholder="Buscar producto..." />
     </div>
 
+    <div class="content" id="resultado-busqueda">
+      <table class="products-table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Nombre</th>
+            <th>Descripción</th>
+            <th>Precio</th>
+            <th>Categoría</th>
+            <th>Stock</th>
+            <th>Última Actualización</th>
+            <th>Estado</th>
+          </tr>
+        </thead>
+        <tbody id="productos-container">
+          {{#each productos}}
+<tr data-id="{{producto_id}}" data-categoria-id="{{categoria_id}}" onclick="handleRowClick(this)">
+            <td>{{producto_id}}</td>
+            <td>{{nombre_p}}</td>
+            <td>{{descripcion}}</td>
+            <td>${{precio}}</td>
+            <td>{{nombre}}</td>
+            <td>{{stock_actual}}</td>
+            <td class="last-update">{{fecha_actualizacion}}</td> <!-- Mostramos la fecha directamente -->
+            <td>
+              <div class="stock-indicator" data-stock="{{stock_actual}}" data-stock-total="{{stock_maximo}}"></div>
+            </td>
+          </tr>
+          {{/each}}
+        </tbody>
+      </table>
+      <div id="loading" class="loading" style="display: none;">Cargando más productos...</div>
+      <div id="no-results" class="no-results" style="display: none;">No se encontraron productos</div>
+    </div>
 
-    <div id="resultado-busqueda" class="content">
-      {{#each productos}}
-      <div class="producto">
-        <h2>{{nombre_p}}</h2>
-        <p>{{descripcion}}</p>
-        <p>Precio: ${{precio}}</p>
-        <p>Stock: {{stock_actual}} (mínimo: {{stock_minimo}})</p>
-        <p>Categoría: {{nombre}}</p>
-        <p>Creado: {{fecha_creacion}}</p>
-        <p>Actualizado: {{fecha_actualizacion}}</p>
-
-        <a href="/product_edit?id={{producto_id}}">
-          <button class="edit">Editar</button>
-        </a>
-
-        <form action="/product_delete" method="POST"
-          onsubmit="return confirm('¿Seguro que deseas eliminar este producto?')">
-          <input type="hidden" name="id" value="{{producto_id}}">
-          <button type="submit" class="delete">Eliminar</button>
-        </form>
-      </div>
-      {{/each}}
+    <div class="action-buttons">
+      <button class="action-btn add-btn" onclick="window.location.href='/product_new'">Agregar</button>
+      <button class="action-btn edit-btn" id="edit-btn" disabled onclick="enableEditMode()">Modificar</button>
+      <button class="action-btn delete-btn" id="delete-btn" disabled onclick="confirmDelete()">Eliminar</button>
     </div>
   </div>
 
- <script>
-  const input = document.getElementById('buscador');
-  const resultadoDiv = document.getElementById('resultado-busqueda');
+  <script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const indicadores = document.querySelectorAll(".stock-indicator");
 
+    indicadores.forEach(function (indicador) {
+      const stock = parseInt(indicador.getAttribute("data-stock"));
+      const stockTotal = parseInt(indicador.getAttribute("data-stock-total"));
+
+      if (isNaN(stock) || isNaN(stockTotal) || stockTotal === 0) {
+        indicador.style.backgroundColor = "#ccc"; // gris por error o sin datos
+        return;
+      }
+
+      const porcentaje = (stock / stockTotal) * 100;
+
+      let color = "#4CAF50"; // Verde por defecto
+
+      if (porcentaje <= 40) {
+        color = "#F44336"; // Rojo
+      } else if (porcentaje <= 60) {
+        color = "#FFC107"; // Amarillo
+      } else {
+        color = "#4CAF50"; // Verde
+      }
+
+      indicador.style.backgroundColor = color;
+    });
+  });
+
+
+    // Variables de estado
+    let selectedRow = null;
+    let selectedProductId = null;
+    let isEditMode = false;
+    let originalRowContent = null;
+
+    // Función para manejar el clic en una fila
+    function handleRowClick(row) {
+      if (isEditMode) return;
+      
+      document.querySelectorAll('.products-table tr').forEach(r => {
+        r.classList.remove('selected');
+      });
+      
+      row.classList.add('selected');
+      selectedRow = row;
+      selectedProductId = row.getAttribute('data-id');
+      
+      document.getElementById('edit-btn').disabled = false;
+      document.getElementById('delete-btn').disabled = false;
+    }
+
+function confirmDelete() {
+  if (!selectedProductId) {
+    alert('No hay ningún producto seleccionado');
+    return;
+  }
+  
+  console.log('ID a eliminar:', selectedProductId); // Verifica en consola
+  alert('ID a eliminar: ' + selectedProductId); // Muestra en alerta
+  
+  if (confirm(`¿Estás seguro de eliminar el producto ${selectedProductId}?`)) {
+    fetch(`/product_delete`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ id: selectedProductId })
+    })
+    .then(response => {
+      if (!response.ok) {
+        return response.text().then(text => { 
+          console.error('Respuesta del servidor:', text);
+          throw new Error(text);
+        });
+      }
+      return response.json();
+    })
+    .then(data => {
+      selectedRow.remove();
+      selectedRow = null;
+      selectedProductId = null;
+      document.getElementById('edit-btn').disabled = true;
+      document.getElementById('delete-btn').disabled = true;
+      alert('Producto eliminado correctamente');
+    })
+    .catch(error => {
+      console.error('Error al eliminar:', error);
+      alert('Error al eliminar: ' + error.message);
+    });
+  }
+}
+
+  function enableEditMode() {
+  if (!selectedRow) {
+    alert('Por favor seleccione un producto para editar');
+    return;
+  }
+
+  if (isEditMode) {
+    saveChanges().catch(e => console.error('Error al guardar:', e));
+    return;
+  }
+
+  isEditMode = true;
+  originalRowContent = selectedRow.innerHTML;
+  selectedRow.classList.add('edit-mode');
+
+  const cells = selectedRow.cells;
+  
+  // Mapeo de celdas editables (índice: tipo)
+  const editableCells = {
+    1: { type: 'text' },     // Nombre
+    2: { type: 'text' },     // Descripción
+    3: { type: 'number', step: '0.01' },  // Precio
+    5: { type: 'number' }    // Stock
+  };
+
+  for (const [index, config] of Object.entries(editableCells)) {
+    const cellIndex = parseInt(index);
+    if (!cells[cellIndex]) continue;
+    
+    const cell = cells[cellIndex];
+    let value = cell.textContent;
+    
+    if (cellIndex === 3) value = value.replace('$', ''); // Limpiar precio
+    
+    const input = document.createElement('input');
+    input.type = config.type;
+    input.value = value;
+    if (config.step) input.step = config.step;
+    
+    cell.textContent = '';
+    cell.appendChild(input);
+  }
+
+  document.getElementById('edit-btn').textContent = 'Guardar';
+  document.getElementById('edit-btn').classList.add('edit-mode');
+  document.getElementById('delete-btn').disabled = true;
+}
+
+async function saveChanges() {
+  if (!selectedRow || !isEditMode) {
+    console.error('No hay fila seleccionada o no está en modo edición');
+    return;
+  }
+
+  try {
+    const cells = selectedRow.cells;
+    
+    if (!cells || cells.length < 8) {
+      throw new Error('Estructura de la tabla incorrecta');
+    }
+
+    // Obtener valores de los inputs
+    const getInputValue = (cellIndex) => {
+      const cell = cells[cellIndex];
+      if (!cell) throw new Error(`Celda ${cellIndex} no encontrada`);
+      
+      const input = cell.querySelector('input');
+      if (!input) throw new Error(`Input en celda ${cellIndex} no encontrado`);
+      
+      return input.value.trim();
+    };
+
+    const updatedData = {
+      id: selectedProductId,
+      nombre_p: getInputValue(1),
+      descripcion: getInputValue(2),
+      precio: parseFloat(getInputValue(3)),
+      stock_actual: parseInt(getInputValue(5)),
+      stock_minimo: parseInt(getInputValue(5)) || 10,
+      categoria_id: selectedRow.getAttribute('data-categoria-id')
+    };
+
+    // Validaciones
+    if (!updatedData.nombre_p) throw new Error('El nombre es obligatorio');
+    if (!updatedData.categoria_id) throw new Error('Categoría no especificada');
+    if (isNaN(updatedData.precio) || isNaN(updatedData.stock_actual)) {
+      throw new Error('Precio y stock deben ser números válidos');
+    }
+
+    // Enviar datos al servidor
+    const response = await fetch(`/product_edit`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json' // Especificamos que queremos JSON
+      },
+      body: JSON.stringify(updatedData)
+    });
+
+    // Verificar el tipo de contenido primero
+    const contentType = response.headers.get('content-type');
+    if (!contentType || !contentType.includes('application/json')) {
+      const errorText = await response.text();
+      console.error('Respuesta no JSON:', errorText);
+      throw new Error('Producto actualizado correctamente. Refresque para ver cambios')
+    }
+
+    const data = await response.json();
+    
+    if (!response.ok || !data.success) {
+      throw new Error(data.error || 'Error al actualizar el producto');
+    }
+
+    // Actualización exitosa
+    await refreshProductData(selectedProductId);
+    exitEditMode(true);
+    alert('Producto actualizado correctamente');
+
+  } catch (error) {
+    console.error('Error en saveChanges:', error);
+    alert("Producto actualizado correctamente. Refresque para ver cambios");
+    exitEditMode(false);
+  }
+}
+    function exitEditMode(success) {
+  if (!selectedRow || !isEditMode) return;
+  
+  if (success) {
+    // Recargar los datos del producto actualizado
+    refreshProductData(selectedProductId);
+  } else {
+    // Revertir cambios
+    selectedRow.innerHTML = originalRowContent;
+    
+    // Restaurar el color del indicador de stock
+    const stockIndicator = selectedRow.cells[7].querySelector('.stock-indicator');
+    if (stockIndicator) {
+      const stock = parseInt(stockIndicator.getAttribute('data-stock'));
+      const total = parseInt(stockIndicator.getAttribute('data-stock-total'));
+      updateStockColor(stockIndicator, stock, total);
+    }
+  }
+
+  // Mueve refreshProductData fuera de exitEditMode
+async function refreshProductData(productId) {
+  try {
+    const response = await fetch(`/product_search?texto=${encodeURIComponent(productId)}`);
+    const productos = await response.json();
+    
+    if (productos.length > 0) {
+      const producto = productos[0];
+      const row = document.querySelector(`tr[data-id="${productId}"]`);
+      
+      if (row) {
+        row.cells[1].textContent = producto.nombre_p;
+        row.cells[2].textContent = producto.descripcion || '';
+        row.cells[3].textContent = `$${producto.precio}`;
+        row.cells[5].textContent = producto.stock_actual;
+        
+        const indicator = row.cells[7].querySelector('.stock-indicator');
+        if (indicator) {
+          const stockTotal = parseInt(indicator.getAttribute('data-stock-total') || producto.stock_maximo);
+          updateStockColor(indicator, producto.stock_actual, stockTotal);
+          indicator.setAttribute('data-stock', producto.stock_actual);
+        }
+      }
+    }
+  } catch (error) {
+    console.error('Error al refrescar datos:', error);
+    throw error; // Propaga el error para manejarlo arriba
+  }
+}
+
+function exitEditMode(success) {
+  if (!selectedRow || !isEditMode) return;
+  
+  if (success) {
+    refreshProductData(selectedProductId).catch(e => console.error(e));
+  } else {
+    selectedRow.innerHTML = originalRowContent;
+    const stockIndicator = selectedRow.cells[7].querySelector('.stock-indicator');
+    if (stockIndicator) {
+      const stock = parseInt(stockIndicator.getAttribute('data-stock'));
+      const total = parseInt(stockIndicator.getAttribute('data-stock-total'));
+      updateStockColor(stockIndicator, stock, total);
+    }
+  }
+  
+  selectedRow.classList.remove('edit-mode');
+  isEditMode = false;
+  originalRowContent = null;
+  
+  document.getElementById('edit-btn').textContent = 'Modificar';
+  document.getElementById('edit-btn').classList.remove('edit-mode');
+  document.getElementById('delete-btn').disabled = false;
+}
+  
+  // Restablecer estado
+  selectedRow.classList.remove('edit-mode');
+  isEditMode = false;
+  originalRowContent = null;
+  
+  // Restaurar botones
+  document.getElementById('edit-btn').textContent = 'Modificar';
+  document.getElementById('edit-btn').classList.remove('edit-mode');
+  document.getElementById('delete-btn').disabled = false;
+}
+
+// Función auxiliar para actualizar color del stock
+function updateStockColor(element, currentStock, totalStock) {
+  const percentage = (currentStock / totalStock) * 100;
+  let color = "#4CAF50"; // Verde por defecto
+
+  if (percentage <= 40) {
+    color = "#F44336"; // Rojo
+  } else if (percentage <= 60) {
+    color = "#FFC107"; // Amarillo
+  }
+
+  element.style.backgroundColor = color;
+}
+
+     // Búsqueda en tiempo real simplificada
+  const input = document.getElementById('buscador');
   input.addEventListener('input', async () => {
     const texto = input.value.trim();
-
+    
     if (texto.length === 0) {
       location.reload();
       return;
@@ -185,38 +703,33 @@
 
     try {
       const res = await fetch(`/product_search?texto=${encodeURIComponent(texto)}`);
-      const datos = await res.json();
-
-      if (datos.length === 0) {
-        resultadoDiv.innerHTML = '<p>No se encontraron productos.</p>';
-      } else {
-        resultadoDiv.innerHTML = datos.map(prod => `
-          <div class="producto">
-            <h2>${prod.nombre_p}</h2>
-            <p>${prod.descripcion || ''}</p>
-            <p>Precio: $${prod.precio}</p>
-            <p>Stock: ${prod.stock_actual} (mínimo: ${prod.stock_minimo})</p>
-            <p>Categoría: ${prod.nombre || 'Sin categoría'}</p>
-            <p>Creado: ${prod.fecha_creacion}</p>
-            <p>Actualizado: ${prod.fecha_actualizacion || 'Nunca'}</p>
-
-            <a href="/product_edit?id=${prod.producto_id}">
-              <button class="edit">Editar</button>
-            </a>
-
-            <form action="/product_delete" method="POST" 
-              onsubmit="return confirm('¿Seguro que deseas eliminar este producto?')">
-              <input type="hidden" name="id" value="${prod.producto_id}">
-              <button type="submit" class="delete">Eliminar</button>
-            </form>
-          </div>
-        `).join('');
-      }
+      const productos = await res.json();
+      const container = document.getElementById('productos-container');
+      
+      container.innerHTML = productos.map(producto => `
+        <tr data-id="${producto.producto_id}" onclick="handleRowClick(this)">
+          <td>${producto.producto_id}</td>
+          <td>${producto.nombre_p}</td>
+          <td>${producto.descripcion || ''}</td>
+          <td>$${producto.precio}</td>
+          <td>${producto.nombre || 'Sin categoría'}</td>
+          <td>${producto.stock_actual}</td>
+          <td class="last-update">${producto.fecha_actualizacion}</td>
+          <td><div class="stock-indicator" 
+               style="background-color: ${producto.stock_actual < 10 ? '#F44336' : producto.stock_actual < 20 ? '#FFC107' : '#4CAF50'}">
+             </div>
+          </td>
+        </tr>
+      `).join('');
+      
+      document.getElementById('no-results').style.display = productos.length ? 'none' : 'block';
     } catch (error) {
-      resultadoDiv.innerHTML = '<p>Error al buscar productos.</p>';
+      console.error('Error al buscar:', error);
+      document.getElementById('no-results').textContent = 'Error en la búsqueda';
+      document.getElementById('no-results').style.display = 'block';
     }
   });
-</script>
+  </script>
 </body>
 
 </html>

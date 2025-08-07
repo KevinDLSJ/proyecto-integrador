@@ -112,40 +112,33 @@
     }
   </style>
 </head>
-
 <body>
-  <div class="sidebar">
-    <div class="logo">
-      <img src="/logo.png" alt="Logo" width="50" />
-    </div>
-    <div class="menu">
-      <a href="/">
-        <button class="dark">INICIO</button>
-      </a>
-      <a href="/product">
-        <button class="light">REGRESAR</button>
-      </a>
-    </div>
-    <button class="exit">SALIR</button>
-  </div>
+  {{> admin-menu}}
 
   <div class="main">
     <div class="formulario">
-          <h1>Nueva Categoría</h1>
+      <h1>Nueva Categoría</h1>
 
-  <form action="/categoria_new" method="POST">
-    <label>Nombre:</label>
-    <input type="text" name="nombre" required>
-
-    <label>Descripción:</label>
-    <textarea name="descripcion"></textarea>
-
-    <button type="submit">Guardar</button>
-    <a href="/categorias"><button type="button">Cancelar</button></a>
-  </form>
+      <form action="/categoria_new" method="POST">
+        <label>ID de Categoría:</label>
+        <input type="text" name="categoria_id" required>
         
+        <label>Nombre:</label>
+        <input type="text" name="nombre" required>
+
+        <label>Descripción:</label>
+        <textarea name="descripcion"></textarea>
+
+        <button type="submit">Guardar</button>
+        <a href="/categorias"><button type="button">Cancelar</button></a>
+      </form>
     </div>
   </div>
+  {{#if exito}}
+<script>
+  alert("¡Categoría agregada exitosamente!");
+  window.location.href = "/categorias"; // redirige después del alert
+</script>
+{{/if}}
 </body>
-
-</html>x
+</html>

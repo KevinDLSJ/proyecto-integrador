@@ -11,11 +11,12 @@ const router = express.Router();
 
 router.get('/admin', adminController.admin);
 router.get('/buscar', adminController.buscarReal);
-router.get('/prov_new', adminController.provnew);
+router.get('/prov_new', adminController.newprov);
 router.post('/prov_new', adminController.newprov);
-router.get('/prov_edit', adminController.editar);
-router.post('/prov_edit', adminController.prov_edit);
 router.post('/eliminar', adminController.eliminar);
+router.post('/prov_edit', adminController.prov_edit);
+router.get('/prov_search', adminController.buscarReal);
+
 
 
 router.get('/product', productController.listar);
@@ -33,9 +34,13 @@ router.post('/categoria_new', categoriaController.guardar);
 router.get('/categoria_edit', categoriaController.editar);
 router.post('/categoria_edit', categoriaController.actualizar);
 router.post('/categoria_delete', categoriaController.eliminar);
+router.get('/categoria_search', categoriaController.buscar);
+
 
 
 router.get('/ticket_main', ventaController.ticket);
+router.get('/ver_ventas', ventaController.listarVentas);
+router.get('/ventas_search', ventaController.buscarVentas); // Para las búsquedas AJAX
 router.post('/guardar_venta', ventaController.guardarVenta);
 
 

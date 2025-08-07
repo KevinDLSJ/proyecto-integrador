@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Historial de Ventas</title>
+<style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      display: flex;
+      height: 100vh;
+      background-color: #eaf0fb;
+    }
+
+    .main {
+      flex-grow: 1;
+      padding: 30px;
+      background-color: #f4f8ff;
+      overflow-y: auto;
+    }
+
+    h1 {
+      color: #003366;
+      border-bottom: 2px solid #004a87;
+      padding-bottom: 5px;
+      margin-top: 0;
+    }
+
+    .search-container {
+      display: flex;
+      margin-bottom: 20px;
+      gap: 10px;
+    }
+
+    .search-input {
+      flex: 1;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      font-size: 16px;
+    }
+
+    .sales-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+      background-color: white;
+      box-shadow: 0 0 5px rgba(0,0,0,0.1);
+    }
+
+    .sales-table th,
+    .sales-table td {
+      border: 1px solid #d0d0d0;
+      padding: 10px;
+      text-align: center;
+      font-size: 14px;
+    }
+
+    .sales-table th {
+      background-color: #cce0ff;
+      color: #003366;
+    }
+
+    .sales-table tr:hover {
+      background-color: #e8f0ff;
+    }
+
+    .status-pendiente {
+      color: #FF9800;
+      font-weight: bold;
+    }
+
+    .status-completada {
+      color: #4CAF50;
+      font-weight: bold;
+    }
+
+    .status-cancelada {
+      color: #F44336;
+      font-weight: bold;
+    }
+
+    .no-results {
+      text-align: center;
+      padding: 40px;
+      color: #666;
+      font-size: 18px;
+    }
+
+    .total-amount {
+      font-weight: bold;
+      color: #004a87;
+    }
+
+    .loading {
+      text-align: center;
+      padding: 20px;
+      color: #666;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  {{> sales-menu}}
+
+  <div class="main">
+    <h1>Historial de Ventas</h1>
+
+    <div class="search-container">
+      <input type="text" id="buscador-ventas" class="search-input" placeholder="Buscar por ID de venta o estado...">
+    </div>
+
+    <div id="ventas-container">
+      <table class="sales-table">
+        <thead>
+          <tr>
+            <th>ID Venta</th>
+            <th>Fecha</th>
+            <th>Total</th>
+            <th>Estado</th>
+          </tr>
+        </thead>
+        <tbody id="ventas-list">
+          {{#each ventas}}
+          <tr>
+            <td>{{venta_id}}</td>
+            <td>{{formatDate fecha}}</td>
+            <td class="total-amount">${{formatCurrency total}}</td>
+            <td>
+              <span class="status-{{estado}}">{{estado}}</span>
+            </td>
+          </tr>
+          {{/each}}
+        </tbody>
+      </table>
+      <div id="no-results" class="no-results" style="display: none;">
+        No se encontraron ventas que coincidan con la búsqueda
+      </div>
+      <div id="loading" class="loading">
+        Cargando más ventas...
+      </div>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const buscador = document.getElementById('buscador-ventas');
+      const ventasList = document.getElementById('ventas-list');
+      const noResults = document.getElementById('no-results');
+      const loading = document.getElementById('loading');
+      
+let currentPage = 2; // No volver a cargar la primera página
+      let isLoading = false;
+      let searchQuery = '';
+      
+      // Función para cargar más ventas
+      function cargarMasVentas() {
+        if (isLoading) return;
+        
+        isLoading = true;
+        loading.style.display = 'block';
+        
+        fetch(`/ventas_search?texto=${encodeURIComponent(searchQuery)}&pagina=${currentPage}`)
+          .then(response => response.json())
+          .then(ventas => {
+            loading.style.display = 'none';
+            isLoading = false;
+            
+            if (ventas.length === 0) {
+              if (currentPage === 1) {
+                noResults.style.display = 'block';
+              }
+              return;
+            }
+            
+            noResults.style.display = 'none';
+            
+            ventas.forEach(venta => {
+              const row = document.createElement('tr');
+              
+              // Formatear fecha
+              const fecha = new Date(venta.fecha);
+              const fechaFormateada = fecha.toLocaleDateString() + ' ' + fecha.toLocaleTimeString();
+              
+              // Formatear total
+              const totalFormateado = '$' + parseFloat(venta.total).toFixed(2);
+              
+              // Determinar clase de estado
+              const estadoClass = `status-${venta.estado.toLowerCase()}`;
+              
+              row.innerHTML = `
+                <td>${venta.venta_id}</td>
+                <td>${fechaFormateada}</td>
+                <td class="total-amount">${totalFormateado}</td>
+                <td><span class="${estadoClass}">${venta.estado}</span></td>
+              `;
+              
+              ventasList.appendChild(row);
+            });
+            
+            currentPage++;
+          })
+          .catch(error => {
+            console.error('Error al cargar ventas:', error);
+            loading.style.display = 'none';
+            isLoading = false;
+          });
+      }
+      
+      // Scroll infinito
+      window.addEventListener('scroll', function() {
+        if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 500) {
+          cargarMasVentas();
+        }
+      });
+      
+      // Búsqueda en tiempo real con debounce
+      let searchTimeout;
+      buscador.addEventListener('input', function() {
+        clearTimeout(searchTimeout);
+        searchTimeout = setTimeout(function() {
+          searchQuery = buscador.value.trim();
+          currentPage = 1;
+          ventasList.innerHTML = '';
+          cargarMasVentas();
+        }, 500);
+      });
+      
+      // Cargar ventas iniciales
+      cargarMasVentas();
+    });
+  </script>
+</body>
+</html>

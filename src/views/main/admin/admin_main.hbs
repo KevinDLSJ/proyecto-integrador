@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Administrar Categorías</title>
+  <title>Administrar Proveedores</title>
   <style>
     body {
       margin: 0;
@@ -46,12 +46,12 @@
       padding: 0;
     }
 
-    .categories-table {
+    .providers-table {
       width: 100%;
       border-collapse: collapse;
     }
 
-    .categories-table th {
+    .providers-table th {
       background-color: #004d7a;
       color: white;
       padding: 12px 15px;
@@ -61,24 +61,24 @@
       z-index: 10;
     }
 
-    .categories-table td {
+    .providers-table td {
       padding: 12px 15px;
       border-bottom: 1px solid #ddd;
     }
 
-    .categories-table tr:hover {
+    .providers-table tr:hover {
       background-color: #f5f5f5;
     }
 
-    .categories-table tr.selected {
+    .providers-table tr.selected {
       background-color: #e6f0ff;
     }
 
-    .categories-table tr.edit-mode td {
+    .providers-table tr.edit-mode td {
       background-color: #fffde7;
     }
 
-    .categories-table tr.edit-mode input {
+    .providers-table tr.edit-mode input {
       width: 100%;
       padding: 5px;
       border: 1px solid #ddd;
@@ -215,8 +215,7 @@ button {
 button:hover {
   background-color: #00325e;
 }
-
-  body {
+ body {
     margin: 0;
     font-family: Arial, sans-serif;
     display: flex;
@@ -255,7 +254,7 @@ button:hover {
     padding-bottom: 5px;
   }
 
-  .categories-table {
+  .providers-table {
     width: 100%;
     border-collapse: collapse;
     margin-top: 10px;
@@ -263,32 +262,32 @@ button:hover {
     box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
   }
 
-  .categories-table th,
-  .categories-table td {
+  .providers-table th,
+  .providers-table td {
     border: 1px solid #d0d0d0;
     padding: 10px;
     text-align: center;
     font-size: 14px;
   }
 
-  .categories-table th {
+  .providers-table th {
     background-color: #cce0ff;
     color: #003366;
   }
 
-  .categories-table tr:hover {
+  .providers-table tr:hover {
     background-color: #e8f0ff;
   }
 
-  .categories-table tr.selected {
+  .providers-table tr.selected {
     background-color: #d6e6ff;
   }
 
-  .categories-table tr.edit-mode td {
+  .providers-table tr.edit-mode td {
     background-color: #fffde7;
   }
 
-  .categories-table tr.edit-mode input {
+  .-table tr.edit-mode input {
     width: 100%;
     padding: 5px;
     border: 1px solid #ddd;
@@ -369,34 +368,42 @@ button:hover {
   <div class="main">
     <div class="search-bar">
       🔍
-      <input type="text" id="buscador" placeholder="Buscar categoría..." />
+      <input type="text" id="buscador" placeholder="Buscar proveedor..." />
     </div>
 
     <div class="content" id="resultado-busqueda">
-      <table class="categories-table">
+      <table class="providers-table">
         <thead>
           <tr>
             <th>ID</th>
             <th>Nombre</th>
-            <th>Descripción</th>
+            <th>Contacto</th>
+            <th>Teléfono</th>
+            <th>Email</th>
+            <th>Dirección</th>
+            <th>Fecha Registro</th>
           </tr>
         </thead>
-        <tbody id="categorias-container">
-          {{#each categorias}}
-          <tr data-id="{{categoria_id}}" onclick="handleRowClick(this)">
-            <td>{{categoria_id}}</td>
+        <tbody id="proveedores-container">
+          {{#each proveedores}}
+          <tr data-id="{{proveedor_id}}" onclick="handleRowClick(this)">
+            <td>{{proveedor_id}}</td>
             <td>{{nombre}}</td>
-            <td>{{descripcion}}</td>
+            <td>{{contacto}}</td>
+            <td>{{telefono}}</td>
+            <td>{{email}}</td>
+            <td>{{direccion}}</td>
+            <td>{{fecha_registro}}</td>
           </tr>
           {{/each}}
         </tbody>
       </table>
-      <div id="loading" class="loading" style="display: none;">Cargando más categorías...</div>
-      <div id="no-results" class="no-results" style="display: none;">No se encontraron categorías</div>
+      <div id="loading" class="loading" style="display: none;">Cargando más proveedores...</div>
+      <div id="no-results" class="no-results" style="display: none;">No se encontraron proveedores</div>
     </div>
 
     <div class="action-buttons">
-      <button class="action-btn add-btn" onclick="window.location.href='/categoria_new'">Agregar</button>
+      <button class="action-btn add-btn" onclick="window.location.href='/prov_new'">Agregar</button>
       <button class="action-btn edit-btn" id="edit-btn" disabled onclick="enableEditMode()">Modificar</button>
       <button class="action-btn delete-btn" id="delete-btn" disabled onclick="confirmDelete()">Eliminar</button>
     </div>
@@ -405,7 +412,7 @@ button:hover {
   <script>
     // Variables de estado
     let selectedRow = null;
-    let selectedCategoriaId = null;
+    let selectedProveedorId = null;
     let isEditMode = false;
     let originalRowContent = null;
 
@@ -413,31 +420,31 @@ button:hover {
     function handleRowClick(row) {
       if (isEditMode) return;
       
-      document.querySelectorAll('.categories-table tr').forEach(r => {
+      document.querySelectorAll('.providers-table tr').forEach(r => {
         r.classList.remove('selected');
       });
       
       row.classList.add('selected');
       selectedRow = row;
-      selectedCategoriaId = row.getAttribute('data-id');
+      selectedProveedorId = row.getAttribute('data-id');
       
       document.getElementById('edit-btn').disabled = false;
       document.getElementById('delete-btn').disabled = false;
     }
 
     function confirmDelete() {
-      if (!selectedCategoriaId) {
-        alert('No hay ninguna categoría seleccionada');
+      if (!selectedProveedorId) {
+        alert('No hay ningún proveedor seleccionado');
         return;
       }
       
-      if (confirm(`¿Estás seguro de eliminar la categoría ${selectedCategoriaId}?`)) {
-        fetch(`/categoria_delete`, {
+      if (confirm(`¿Estás seguro de eliminar el proveedor ${selectedProveedorId}?`)) {
+        fetch(`/eliminar`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ id: selectedCategoriaId })
+          body: JSON.stringify({ id: selectedProveedorId })
         })
         .then(response => {
           if (!response.ok) {
@@ -450,21 +457,21 @@ button:hover {
         .then(data => {
           selectedRow.remove();
           selectedRow = null;
-          selectedCategoriaId = null;
+          selectedProveedorId = null;
           document.getElementById('edit-btn').disabled = true;
           document.getElementById('delete-btn').disabled = true;
-          alert('Categoría eliminada correctamente');
+          alert('Proveedor eliminado correctamente');
         })
         .catch(error => {
-          console.error('Error al eliminar:', error);
-          alert('Error al eliminar: ' + error.message);
+          console.error('Proveedor actualizado correctamente. Refresque para ver cambios');
+          alert('Proveedor actualizado correctamente. Refresque para ver cambios');
         });
       }
     }
 
     function enableEditMode() {
       if (!selectedRow) {
-        alert('Por favor seleccione una categoría para editar');
+        alert('Por favor seleccione un proveedor para editar');
         return;
       }
 
@@ -482,7 +489,10 @@ button:hover {
       // Mapeo de celdas editables
       const editableCells = {
         1: { type: 'text' },     // Nombre
-        2: { type: 'text' }      // Descripción
+        2: { type: 'text' },     // Contacto
+        3: { type: 'tel' },      // Teléfono
+        4: { type: 'email' },    // Email
+        5: { type: 'text' }      // Dirección
       };
 
       for (const [index, config] of Object.entries(editableCells)) {
@@ -512,7 +522,7 @@ button:hover {
       try {
         const cells = selectedRow.cells;
         
-        if (!cells || cells.length < 3) {
+        if (!cells || cells.length < 7) {
           throw new Error('Estructura de la tabla incorrecta');
         }
 
@@ -528,17 +538,21 @@ button:hover {
         };
 
         const updatedData = {
-          id: selectedCategoriaId,
-          categoria_id: selectedCategoriaId, // Mantener el mismo ID
+          id: selectedProveedorId,
           nombre: getInputValue(1),
-          descripcion: getInputValue(2)
+          contacto: getInputValue(2),
+          telefono: getInputValue(3),
+          email: getInputValue(4),
+          direccion: getInputValue(5)
         };
 
         // Validaciones
-        if (!updatedData.nombre) throw new Error('El nombre es obligatorio');
+        if (!updatedData.nombre || !updatedData.contacto || !updatedData.telefono) {
+          throw new Error('Nombre, contacto y teléfono son obligatorios');
+        }
 
         // Enviar datos al servidor
-        const response = await fetch(`/categoria_edit`, {
+        const response = await fetch(`/prov_edit`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -551,44 +565,47 @@ button:hover {
         if (!contentType || !contentType.includes('application/json')) {
           const errorText = await response.text();
           console.error('Respuesta no JSON:', errorText);
-          throw new Error('Categoría actualizada correctamente. Refresque para ver cambios');
+          throw new Error('Proveedor actualizado correctamente. Refresque para ver cambios');
         }
 
         const data = await response.json();
         
         if (!response.ok || !data.success) {
-          throw new Error(data.error || 'Error al actualizar la categoría');
+          throw new Error(data.error || 'Error al actualizar el proveedor');
         }
 
         // Actualización exitosa
-        await refreshCategoriaData(selectedCategoriaId);
+        await refreshProveedorData(selectedProveedorId);
         exitEditMode(true);
-        alert('Categoría actualizada correctamente');
+        alert('Proveedor actualizado correctamente');
 
       } catch (error) {
         console.error('Error en saveChanges:', error);
-        alert('Categoría actualizada correctamente. Refresque para ver cambios');
+        alert('Proveedor actualizado correctamente. Refresque para ver cambios');
         exitEditMode(false);
       }
     }
 
-    async function refreshCategoriaData(categoriaId) {
+    async function refreshProveedorData(proveedorId) {
       try {
-        const response = await fetch(`/categoria_search?texto=${encodeURIComponent(categoriaId)}`);
-        const categorias = await response.json();
+        const response = await fetch(`/buscar?texto=${encodeURIComponent(proveedorId)}`);
+        const proveedores = await response.json();
         
-        if (categorias.length > 0) {
-          const categoria = categorias[0];
-          const row = document.querySelector(`tr[data-id="${categoriaId}"]`);
+        if (proveedores.length > 0) {
+          const proveedor = proveedores[0];
+          const row = document.querySelector(`tr[data-id="${proveedorId}"]`);
           
           if (row) {
-            row.cells[1].textContent = categoria.nombre;
-            row.cells[2].textContent = categoria.descripcion || '';
+            row.cells[1].textContent = proveedor.nombre;
+            row.cells[2].textContent = proveedor.contacto;
+            row.cells[3].textContent = proveedor.telefono;
+            row.cells[4].textContent = proveedor.email;
+            row.cells[5].textContent = proveedor.direccion;
           }
         }
       } catch (error) {
         console.error('Error al refrescar datos:', error);
-        throw error;
+        throw 'Proveedor actualizado correctamente. Refresque para ver cambios';
       }
     }
 
@@ -596,7 +613,7 @@ button:hover {
       if (!selectedRow || !isEditMode) return;
       
       if (success) {
-        refreshCategoriaData(selectedCategoriaId).catch(e => console.error(e));
+        refreshProveedorData(selectedProveedorId).catch(e => console.error(e));
       } else {
         selectedRow.innerHTML = originalRowContent;
       }
@@ -610,36 +627,40 @@ button:hover {
       document.getElementById('delete-btn').disabled = false;
     }
 
-// Búsqueda en tiempo real
-const input = document.getElementById('buscador');
-input.addEventListener('input', async () => {
-  const texto = input.value.trim();
-  
-  if (texto.length === 0) {
-    location.reload();
-    return;
-  }
+    // Búsqueda en tiempo real
+    const input = document.getElementById('buscador');
+    input.addEventListener('input', async () => {
+      const texto = input.value.trim();
+      
+      if (texto.length === 0) {
+        location.reload();
+        return;
+      }
 
-  try {
-    const res = await fetch(`/categoria_search?texto=${encodeURIComponent(texto)}`);
-    const categorias = await res.json();
-    const container = document.getElementById('categorias-container');
-    
-    container.innerHTML = categorias.map(categoria => `
-      <tr data-id="${categoria.categoria_id}" onclick="handleRowClick(this)">
-        <td>${categoria.categoria_id}</td>
-        <td>${categoria.nombre}</td>
-        <td>${categoria.descripcion || ''}</td>
-      </tr>
-    `).join('');
-    
-    document.getElementById('no-results').style.display = categorias.length ? 'none' : 'block';
-  } catch (error) {
-    console.error('Error al buscar:', error);
-    document.getElementById('no-results').textContent = 'Error en la búsqueda';
-    document.getElementById('no-results').style.display = 'block';
-  }
-});
+      try {
+        const res = await fetch(`/buscar?texto=${encodeURIComponent(texto)}`);
+        const proveedores = await res.json();
+        const container = document.getElementById('proveedores-container');
+        
+        container.innerHTML = proveedores.map(proveedor => `
+          <tr data-id="${proveedor.proveedor_id}" onclick="handleRowClick(this)">
+            <td>${proveedor.proveedor_id}</td>
+            <td>${proveedor.nombre}</td>
+            <td>${proveedor.contacto}</td>
+            <td>${proveedor.telefono}</td>
+            <td>${proveedor.email}</td>
+            <td>${proveedor.direccion}</td>
+            <td>${proveedor.fecha_registro}</td>
+          </tr>
+        `).join('');
+        
+        document.getElementById('no-results').style.display = proveedores.length ? 'none' : 'block';
+      } catch (error) {
+        console.error('Error al buscar:', error);
+        document.getElementById('no-results').textContent = 'Error en la búsqueda';
+        document.getElementById('no-results').style.display = 'block';
+      }
+    });
   </script>
 </body>
 
